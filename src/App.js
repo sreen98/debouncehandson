@@ -1,25 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
+import axios from "axios";
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 
-function App() {
+const AppWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh !important;
+`;
+
+const StyledInput = styled.input`
+  width: 20rem;
+`;
+
+export default function App() {
+  const [pinCode, setPinCode] = useState("");
+  const [postOffices, setPostOffices] = useState([]);
+
+  useEffect(() => {
+    const getData = setTimeout(() => {
+      axios
+        .get(`https://api.postalpincode.in/pincode/${pinCode}`)
+        .then((response) => {
+          setPostOffices(response.data[0]?.PostOffice);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }, 1000);
+    return () => clearTimeout(getData);
+  }, [pinCode]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppWrapper>
+      <StyledInput
+        placeholder="Search Input.."
+        onChange={(event) => setPinCode(event.target.value)}
+      />
+      <div>
+        {postOffices?.map((po) => {
+          return (
+            <div key={po.Name}>
+              <h3> {po.Name}</h3>
+            </div>
+          );
+        })}
+      </div>
+    </AppWrapper>
   );
 }
-
-export default App;
